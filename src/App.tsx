@@ -74,7 +74,6 @@ const App: React.FC = () => {
     return `${paddedHours}:${paddedMinutes}`;
   };
 
-  console.log("telegram game");
   useEffect(() => {
     const updateCountdowns = () => {
       setDailyRewardTimeLeft(calculateTimeLeft(0));
