@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import Hamster from "./icons/Hamster";
+
 import {
   binanceLogo,
   dailyCipher,
@@ -15,8 +16,58 @@ import Settings from "./icons/Settings";
 import Mine from "./icons/Mine";
 import Friends from "./icons/Friends";
 import Coins from "./icons/Coins";
+import {
+  createWeb3Modal,
+  defaultConfig,
+  useWeb3Modal,
+  useWeb3ModalAccount,
+} from "@web3modal/ethers5/react";
 
 const App: React.FC = () => {
+  // 1. Get projectId
+  const projectId = "212f5496ccafd88d903f69209067cf1d";
+
+  // 2. Set chains
+  const mainnet = {
+    chainId: 1,
+    name: "Ethereum",
+    currency: "ETH",
+    explorerUrl: "https://etherscan.io",
+    rpcUrl: "https://cloudflare-eth.com",
+  };
+
+  // 3. Create a metadata object
+  const metadata = {
+    name: "My Website",
+    description: "My Website description",
+    url: "https://mywebsite.com", // origin must match your domain & subdomain
+    icons: ["https://avatars.mywebsite.com/"],
+  };
+
+  // 4. Create Ethers config
+  const ethersConfig = defaultConfig({
+    /*Required*/
+    metadata,
+
+    /*Optional*/
+    enableEIP6963: true, // true by default
+    enableInjected: true, // true by default
+    enableCoinbase: true, // true by default
+    rpcUrl: "...", // used for the Coinbase SDK
+    defaultChainId: 1, // used for the Coinbase SDK
+  });
+
+  // 5. Create a AppKit instance
+  createWeb3Modal({
+    ethersConfig,
+    chains: [mainnet],
+    projectId,
+    enableAnalytics: true, // Optional - defaults to your Cloud configuration
+  });
+
+  const { open } = useWeb3Modal();
+  const { address } = useWeb3ModalAccount();
+
   const levelNames = [
     "Bronze", // From 0 to 4999 coins
     "Silver", // From 5000 coins to 24,999 coins
@@ -147,6 +198,13 @@ const App: React.FC = () => {
     <div className="bg-black flex justify-center">
       <div className="w-full bg-black text-white h-screen font-bold flex flex-col max-w-xl">
         <div className="px-4 z-10">
+          <button
+            onClick={() => open()}
+            className="bg-white text-black p-3 rounded-lg mt-4"
+            disabled={!!address}
+          >
+            {address ? address : "Connect Wallet"}
+          </button>
           <div className="flex items-center space-x-2 pt-4">
             <div className="p-1 rounded-lg bg-[#1d2025]">
               <Hamster size={24} className="text-[#d4d4d4]" />
