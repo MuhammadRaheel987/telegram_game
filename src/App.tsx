@@ -22,10 +22,20 @@ import {
   useWeb3Modal,
   useWeb3ModalAccount,
 } from "@web3modal/ethers5/react";
+import { UserType } from "./utils/types";
 
 const App: React.FC = () => {
   // 1. Get projectId
   const projectId = "212f5496ccafd88d903f69209067cf1d";
+  const [user, setUser] = useState<UserType | null>(null);
+  useEffect(() => {
+    window.Telegram.WebApp.ready(); // Initialize Telegram WebApp
+
+    const initData = window.Telegram.WebApp.initDataUnsafe;
+    if (initData && initData.user) {
+      setUser(initData.user);
+    }
+  }, []);
 
   // 2. Set chains
   const mainnet = {
@@ -193,6 +203,7 @@ const App: React.FC = () => {
     }, 1000);
     return () => clearInterval(interval);
   }, [profitPerHour]);
+  console.log("user....", user);
 
   return (
     <div className="bg-black flex justify-center">
@@ -205,6 +216,17 @@ const App: React.FC = () => {
           >
             {address ? address : "Connect Wallet"}
           </button>
+          <div>
+            {user ? (
+              <div>
+                <p>User: {user.username}</p>
+                <p>First Name: {user.first_name}</p>
+                <p>Last Name: {user.last_name}</p>
+              </div>
+            ) : (
+              <p>Loading user data...</p>
+            )}
+          </div>
           <div className="flex items-center space-x-2 pt-4">
             <div className="p-1 rounded-lg bg-[#1d2025]">
               <Hamster size={24} className="text-[#d4d4d4]" />
