@@ -214,7 +214,6 @@ const App: React.FC = () => {
     <div className="bg-black flex justify-center">
       <div className="w-full bg-black text-white h-screen font-bold flex flex-col max-w-xl">
         <div className="px-4 z-10">
-          <h1 className="text-lg text-white">hello world</h1>
           <button
             onClick={() => open()}
             className="bg-white text-black p-3 rounded-lg mt-4"
