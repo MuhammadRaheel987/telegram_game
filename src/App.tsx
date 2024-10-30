@@ -29,7 +29,7 @@ const App: React.FC = () => {
   const projectId = "212f5496ccafd88d903f69209067cf1d";
   const [user, setUser] = useState<UserType | null>(null);
   useEffect(() => {
-    window.Telegram.WebApp.ready(); // Initialize Telegram WebApp
+    window.Telegram.WebApp.ready();
 
     const initData = window.Telegram.WebApp.initDataUnsafe;
     if (initData && initData.user) {
@@ -75,7 +75,7 @@ const App: React.FC = () => {
     enableAnalytics: true, // Optional - defaults to your Cloud configuration
   });
 
-  const { open } = useWeb3Modal();
+  const { open, close } = useWeb3Modal();
   const { address } = useWeb3ModalAccount();
 
   const levelNames = [
@@ -203,36 +203,30 @@ const App: React.FC = () => {
     }, 1000);
     return () => clearInterval(interval);
   }, [profitPerHour]);
-  console.log("user....", user);
+
+  useEffect(() => {
+    return () => {
+      close();
+    };
+  }, []);
 
   return (
     <div className="bg-black flex justify-center">
       <div className="w-full bg-black text-white h-screen font-bold flex flex-col max-w-xl">
         <div className="px-4 z-10">
-          <button
+          {/* <button
             onClick={() => open()}
             className="bg-white text-black p-3 rounded-lg mt-4"
             disabled={!!address}
           >
             {address ? address : "Connect Wallet"}
-          </button>
-          <div>
-            {user ? (
-              <div>
-                <p>User: {user.username}</p>
-                <p>First Name: {user.first_name}</p>
-                <p>Last Name: {user.last_name}</p>
-              </div>
-            ) : (
-              <p>Loading user data...</p>
-            )}
-          </div>
+          </button> */}
           <div className="flex items-center space-x-2 pt-4">
             <div className="p-1 rounded-lg bg-[#1d2025]">
               <Hamster size={24} className="text-[#d4d4d4]" />
             </div>
             <div>
-              <p className="text-sm">Nikandr (CEO)</p>
+              <p className="text-sm">{user?.first_name}</p>
             </div>
           </div>
           <div className="flex items-center justify-between space-x-4 mt-1">
