@@ -214,13 +214,14 @@ const App: React.FC = () => {
     <div className="bg-black flex justify-center">
       <div className="w-full bg-black text-white h-screen font-bold flex flex-col max-w-xl">
         <div className="px-4 z-10">
-          {/* <button
+          <h1 className="text-lg text-white">hello world</h1>
+          <button
             onClick={() => open()}
             className="bg-white text-black p-3 rounded-lg mt-4"
             disabled={!!address}
           >
             {address ? address : "Connect Wallet"}
-          </button> */}
+          </button>
           <div className="flex items-center space-x-2 pt-4">
             <div className="p-1 rounded-lg bg-[#1d2025]">
               <Hamster size={24} className="text-[#d4d4d4]" />
