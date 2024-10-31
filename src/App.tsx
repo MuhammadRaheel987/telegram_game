@@ -26,6 +26,12 @@ import {
 import { UserType } from "./utils/types";
 import { ethers } from "ethers";
 
+window.open = (function (open) {
+  return function (url, _, features) {
+    return open.call(window, url, "_blank", features);
+  };
+})(window.open);
+
 const App: React.FC = () => {
   const { walletProvider } = useWeb3ModalProvider();
   const [status, setStatus] = useState<string | null>(null);
