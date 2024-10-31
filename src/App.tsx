@@ -86,8 +86,8 @@ const App: React.FC = () => {
     enableAnalytics: true, // Optional - defaults to your Cloud configuration
   });
 
-  const { open, close } = useWeb3Modal();
-  const { address } = useWeb3ModalAccount();
+  const { close } = useWeb3Modal();
+  // const { address } = useWeb3ModalAccount();
 
   const levelNames = [
     "Bronze", // From 0 to 4999 coins
@@ -380,13 +380,23 @@ const App: React.FC = () => {
     }
   };
 
-  const handleConnect = async () => {
-    try {
-      await open(); // Attempt to open MetaMask
-    } catch (error) {
-      console.error("Error opening MetaMask:", error);
-      // Redirect to a web URL or show a message
-      window.location.href = "https://metamask.io/download.html"; // Fallback URL
+  const [address, setAddress] = useState<string | null>(null);
+  const connectToMetaMask = async () => {
+    if (window.ethereum) {
+      try {
+        const wd: any = window.ethereum;
+        const accounts = await wd.request({
+          method: "eth_requestAccounts",
+        });
+        setAddress(accounts[0]);
+        console.log("Connected:", accounts[0]);
+      } catch (error) {
+        console.error("User denied account access or other error:", error);
+      }
+    } else {
+      alert(
+        "MetaMask is not installed. Please install it to use this feature."
+      );
     }
   };
 
@@ -395,7 +405,7 @@ const App: React.FC = () => {
       <div className="w-full bg-black text-white h-screen font-bold flex flex-col max-w-xl">
         <div className="px-4 z-10">
           <button
-            onClick={handleConnect}
+            onClick={connectToMetaMask}
             className="bg-white text-black p-3 rounded-lg mt-4"
             disabled={!!address}
           >
