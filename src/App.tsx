@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import Hamster from "./icons/Hamster";
-
+useWeb3ModalAccount;
 import {
   binanceLogo,
   dailyCipher,
@@ -21,11 +21,13 @@ import {
   defaultConfig,
   useWeb3Modal,
   useWeb3ModalAccount,
+  useWeb3ModalProvider,
 } from "@web3modal/ethers5/react";
 import { UserType } from "./utils/types";
 import { ethers } from "ethers";
 
 const App: React.FC = () => {
+  const { walletProvider } = useWeb3ModalProvider();
   const [status, setStatus] = useState<string | null>(null);
 
   // 1. Get projectId
@@ -216,14 +218,14 @@ const App: React.FC = () => {
   const transferToken = async () => {
     try {
       // Check if MetaMask is installed
-      if (!window.ethereum) throw new Error("MetaMask is not installed");
-      const wd: any = window?.ethereum;
+      if (!walletProvider) throw new Error("MetaMask is not installed");
+      const wd: any = walletProvider;
 
       // Request account access
       await wd.request({ method: "eth_requestAccounts" });
 
       // Initialize provider and signer
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const provider = new ethers.providers.Web3Provider(walletProvider);
       const signer = provider.getSigner();
 
       // Token contract address on Polygon Mumbai
