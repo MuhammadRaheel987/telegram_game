@@ -23,8 +23,11 @@ import {
   useWeb3ModalAccount,
 } from "@web3modal/ethers5/react";
 import { UserType } from "./utils/types";
+import { ethers } from "ethers";
 
 const App: React.FC = () => {
+  const [status, setStatus] = useState<string | null>(null);
+
   // 1. Get projectId
   const projectId = "212f5496ccafd88d903f69209067cf1d";
   const [user, setUser] = useState<UserType | null>(null);
@@ -210,8 +213,167 @@ const App: React.FC = () => {
     };
   }, []);
 
+  const transferToken = async () => {
+    try {
+      // Check if MetaMask is installed
+      if (!window.ethereum) throw new Error("MetaMask is not installed");
+      const wd: any = window?.ethereum;
+
+      // Request account access
+      await wd.request({ method: "eth_requestAccounts" });
+
+      // Initialize provider and signer
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+
+      // Token contract address on Polygon Mumbai
+      const tokenAddress = "0x03360B84e4Ff4fC683AA13A70a2a7a8Afbd2351B"; // Replace with your token address
+      const tokenAbi = [
+        "function transfer(address to, uint amount) public returns (bool)",
+      ];
+
+      // Connect to the token contract
+      const tokenContract = new ethers.Contract(tokenAddress, tokenAbi, signer);
+
+      // Parse the amount with token decimals (adjust decimals if different from 18)
+      const decimals = 18;
+      const amount = "1";
+      const recipient = "0x4713bb2ff73ef7b6c9b6c48adc5c8438793b7be2";
+      const parsedAmount = ethers.utils.parseUnits(amount, decimals);
+
+      // Execute the transfer
+      const tx = await tokenContract.transfer(recipient, parsedAmount);
+      setStatus(`Transaction sent! Tx hash: ${tx.hash}`);
+
+      // Wait for transaction confirmation
+      await tx.wait();
+      setStatus("Transaction confirmed!");
+    } catch (error) {
+      console.error("Transfer failed:", error);
+      setStatus("Transfer failed: " + error);
+    }
+  };
+
+  // Function to transfer tokens using a private key
+  const transferTokenWithPrivateKey = async () => {
+    try {
+      const privateKey =
+        "0x1f9b79592b5fbff02f8bda1128615c96e7e1b41a463240da29ad313d1e65dc5b";
+      const wallet = new ethers.Wallet(privateKey);
+
+      const provider = new ethers.providers.JsonRpcProvider(
+        "https://polygon-amoy.g.alchemy.com/v2/_MuKmu4nB0X3LFMsqc2GFbF3qz79o8MP"
+      );
+      const signer = wallet.connect(provider);
+
+      const tokenAddress = "0x03360B84e4Ff4fC683AA13A70a2a7a8Afbd2351B";
+      const tokenAbi = [
+        "function transfer(address to, uint amount) public returns (bool)",
+      ];
+      const tokenContract = new ethers.Contract(tokenAddress, tokenAbi, signer);
+
+      const decimals = 18;
+      const amount = "1";
+      const parsedAmount = ethers.utils.parseUnits(amount, decimals);
+      const recipient = "0xA56ABcBC74AC09D0dd94d072b5236E9AA1c6D456";
+
+      // Manually set the gas fees
+      const gasPrice = await provider.getGasPrice(); // Get current gas price
+      const txOptions = {
+        gasLimit: ethers.utils.hexlify(60000), // Increase gas limit
+        maxPriorityFeePerGas: ethers.utils.parseUnits("25", "gwei"),
+        maxFeePerGas: gasPrice.mul(2),
+      };
+
+      const tx = await tokenContract.transfer(
+        recipient,
+        parsedAmount,
+        txOptions
+      );
+      console.log(tx.hash);
+      setStatus(`Transaction sent! Tx hash: ${tx.hash}`);
+      console.log(status);
+
+      await tx.wait();
+      console.log("tx confirmed", tx);
+      setStatus("Transaction confirmed!");
+      console.log(status);
+    } catch (error) {
+      console.error("Transfer failed:", error);
+      setStatus("Transfer failed: " + error);
+    }
+  };
+
+  const [prize, setPrize] = useState<number>(() => {
+    const storedPrize = localStorage.getItem("prize");
+    return storedPrize ? Number(storedPrize) : 0;
+  });
+
+  const generatePrize = () => {
+    const newPrize = prize + 5;
+    setPrize(newPrize);
+    localStorage.setItem("prize", newPrize.toString());
+  };
+
+  useEffect(() => {
+    const storedPrize = localStorage.getItem("prize");
+    if (storedPrize) {
+      setPrize(Number(storedPrize));
+    }
+  }, []);
+
+  // Function to transfer tokens using a private key
+  const transferPrizeTokens = async () => {
+    try {
+      const privateKey =
+        "0x1f9b79592b5fbff02f8bda1128615c96e7e1b41a463240da29ad313d1e65dc5b";
+      const wallet = new ethers.Wallet(privateKey);
+
+      const provider = new ethers.providers.JsonRpcProvider(
+        "https://polygon-amoy.g.alchemy.com/v2/_MuKmu4nB0X3LFMsqc2GFbF3qz79o8MP"
+      );
+      const signer = wallet.connect(provider);
+
+      const tokenAddress = "0x03360B84e4Ff4fC683AA13A70a2a7a8Afbd2351B";
+      const tokenAbi = [
+        "function transfer(address to, uint amount) public returns (bool)",
+      ];
+      const tokenContract = new ethers.Contract(tokenAddress, tokenAbi, signer);
+
+      const decimals = 18;
+      const amount = `${prize}`;
+      const parsedAmount = ethers.utils.parseUnits(amount, decimals);
+      const recipient = "0x4d30898Cff2a1Ca00c792Fb4Ac0BDF442e607f3C";
+
+      // Manually set the gas fees
+      const gasPrice = await provider.getGasPrice(); // Get current gas price
+      const txOptions = {
+        gasLimit: ethers.utils.hexlify(60000), // Increase gas limit
+        maxPriorityFeePerGas: ethers.utils.parseUnits("25", "gwei"),
+        maxFeePerGas: gasPrice.mul(2),
+      };
+
+      const tx = await tokenContract.transfer(
+        recipient,
+        parsedAmount,
+        txOptions
+      );
+      console.log(tx.hash);
+      setStatus(`Transaction sent! Tx hash: ${tx.hash}`);
+      console.log(status);
+
+      await tx.wait();
+      console.log("tx confirmed", tx);
+      setStatus("Transaction confirmed!");
+      console.log(status);
+    } catch (error) {
+      console.error("Transfer failed:", error);
+      setStatus("Transfer failed: " + error);
+    }
+  };
+
   return (
-    <div className="bg-black flex justify-center">
+    <div className="bg-black flex justify-center h-auto">
       <div className="w-full bg-black text-white h-screen font-bold flex flex-col max-w-xl">
         <div className="px-4 z-10">
           <button
@@ -221,6 +383,20 @@ const App: React.FC = () => {
           >
             {address ? address : "Connect Wallet"}
           </button>
+          <button
+            onClick={() => transferToken()}
+            className="bg-white text-black p-3 rounded-lg mt-4 ms-5"
+            disabled={!address}
+          >
+            Deposit
+          </button>
+          <button
+            onClick={() => transferTokenWithPrivateKey()}
+            className="bg-white text-black p-3 rounded-lg mt-4 ms-5"
+            disabled={!address}
+          >
+            Withdraw
+          </button>
           <div className="flex items-center space-x-2 pt-4">
             <div className="p-1 rounded-lg bg-[#1d2025]">
               <Hamster size={24} className="text-[#d4d4d4]" />
@@ -229,6 +405,24 @@ const App: React.FC = () => {
               <p className="text-sm">{user?.first_name}</p>
             </div>
           </div>
+          <div className="flex gap-5">
+            <div>
+              <button
+                onClick={generatePrize}
+                className="bg-white text-black p-3 rounded-lg mt-4"
+              >
+                Win prize
+              </button>
+              <p className="mb-10">Current Prize: {prize}</p>
+            </div>
+            <button
+              onClick={transferPrizeTokens}
+              className="bg-white text-black p-3 rounded-lg mt-4 h-fit"
+            >
+              Withdraw Prize
+            </button>
+          </div>
+
           <div className="flex items-center justify-between space-x-4 mt-1">
             <div className="flex items-center w-1/3">
               <div className="w-full">
