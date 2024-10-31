@@ -380,12 +380,22 @@ const App: React.FC = () => {
     }
   };
 
+  const handleConnect = async () => {
+    try {
+      await open(); // Attempt to open MetaMask
+    } catch (error) {
+      console.error("Error opening MetaMask:", error);
+      // Redirect to a web URL or show a message
+      window.location.href = "https://metamask.io/download.html"; // Fallback URL
+    }
+  };
+
   return (
     <div className="bg-black flex justify-center h-auto">
       <div className="w-full bg-black text-white h-screen font-bold flex flex-col max-w-xl">
         <div className="px-4 z-10">
           <button
-            onClick={() => open()}
+            onClick={handleConnect}
             className="bg-white text-black p-3 rounded-lg mt-4"
             disabled={!!address}
           >
